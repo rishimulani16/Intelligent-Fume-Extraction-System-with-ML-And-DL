@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Predict with 5 Models</title>
+</head>
+<body>
+    <h2>Enter 23 Input Features</h2>
+    <form action="/predict" method="post">
+        {% for i, label in [
+            (0, 'Process Mode'),
+            (1, 'Oxygen Consumption - Top'),
+            (2, 'Furnace Power'),
+            (3, 'Combustion Chamber Pressure'),
+            (4, 'Suction Damper Position feedback'),
+            (5, 'FDC Inlet Temperature'),
+            (6, 'FDC Outlet Temperature'),
+            (7, 'FDC Outlet Temperature - UpperSide'),
+            (8, 'DP across FDC'),
+            (9, 'FDC Outlet Pressure'),
+            (10, 'Pressure at Gas Mixture Inlet'),
+            (11, 'Temp at BagHouse Inlet - UpperSide'),
+            (12, 'Temp at BagHouse Inlet - LowerSide'),
+            (13, 'Pressure at BagHouse Inlet'),
+            (14, 'DP Across BagHouse - UpperSide'),
+            (15, 'DP Across BagHouse - LowerSide'),
+            (16, 'Pressure ID Fan Inlet'),
+            (17, 'Canopy Damper Position'),
+            (18, 'Unnamed: 19'),
+            (19, 'Unnamed: 20'),
+            (20, 'ID Fan1 Speed'),
+            (21, 'ID Fan1 Current'),
+            (22, 'ID Fan2 Speed')
+        ] %}
+            <label for="f{{ i }}">{{ label }}:</label><br>
+            <input type="text" name="f{{ i }}" required><br>
+        {% endfor %}
+        <br>
+        <input type="submit" value="Predict">
+    </form>
+
+    {% if prediction1 %}
+        <h3>Pressure At ID Fan Inlet:</h3> 
+        <h3>Predicted : {{ prediction1}}</h3> 
+        <h3>Actual : {{actual_data_1}}</h3> 
+        {%if result1 == "problem"%}
+            <h3>May have Problem At ID Fan Inlet</h3> 
+        {% endif %}
+
+        <br>
+
+        <h3>Pressure At BagHouse: </h3>
+        <h3>Predicted : {{ prediction2}}</h3> 
+        <h3>Actual : {{actual_data_2}}</h3>
+        {%if result2 == "problem"%}
+            <h3>May have Problem At BagHouse</h3> 
+        {% endif %}
+
+        <br>
+
+        <h3>Pressure At Gas Mixture:</h3>
+        <h3>Predicted : {{ prediction3}}</h3> 
+        <h3>Actual : {{actual_data_3}}</h3>
+        {%if result3 == "problem"%}
+            <h3>May have Problem At Gas Mixture</h3> 
+        {% endif %}
+
+        <br>
+
+        <h3>Pressure At FDC Oulet:</h3>
+        <h3>Predicted : {{ prediction4}}</h3> 
+        <h3>Actual : {{actual_data_4}}</h3>
+        {%if result4 == "problem"%}
+            <h3>May have Problem At FDC Outlet</h3> 
+        {% endif %}
+
+        <br>
+
+        <h3>Pressure At Combustion Chamber:</h3>
+        <h3>Predicted : {{ prediction5}}</h3> 
+        <h3>Actual : {{actual_data_5}}</h3>
+        {%if result5 == "problem"%}
+            <h3>May have Problem At Combustion Chamber</h3> 
+        {% endif %}
+    {% endif %}
+    
+    {% if prediction_error %}
+        <h3 style="color:red;">{{ prediction_error }}</h3>
+    {% endif %}
+</body>
+</html>
+<!-- 32	2890.05	0.0	-13.97569	92.22367	400.8029	168.8	162.6	103.3782	-122.7214	-119.8785
+79.4	74.0	-219.9002	15.85503	18.51997	-400.0651	60.93208	41.2	80.7	946.2	
+226.4158	945.4032 -->
+
+<!-- 64	6899.486	0.0	-12.66277	74.35981	479.1414	174.4	171.2	72.03053	-109.6571	
+ -111.5451	79.10001	80.3	-201.9965	15.62211	18.30874	-376.4106	64.65205	43.6
+ 	80.1	946.2	215.3163	945.4032 -->
+
+
+<!-- 05.09.2024_11.25.11	 -->
+<!-- 64	8480.041	0.0	-14.65567	55.27705	430.5628	159.6	157.6	103.38180	-123.8064	
+ -126.3166	76.0	78.2	-215.6467	15.42969	18.21904	-388.0932	64.38151	41.3	
+ 77.80000	946.2	213.560	945.4032 -->

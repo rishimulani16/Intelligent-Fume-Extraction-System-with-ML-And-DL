@@ -1,93 +1,336 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Predict with 5 Models</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Fume Extraction - Prediction Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f1226;
+            --bg-soft: #15193a;
+            --card: rgba(255, 255, 255, 0.06);
+            --card-strong: rgba(255, 255, 255, 0.12);
+            --text: #e8e9f3;
+            --muted: #a7add5;
+            --primary: #7c5cff;
+            --primary-600: #6b46ff;
+            --accent: #22d3ee;
+            --success: #22c55e;
+            --warn: #f59e0b;
+            --danger: #ef4444;
+            --shadow: 0 10px 35px rgba(0,0,0,0.4);
+            --radius: 14px;
+        }
+        * { box-sizing: border-box; }
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(1200px 800px at 10% 10%, #1a1f4d 0%, var(--bg) 50%, #0b0d1d 100%);
+            color: var(--text);
+            font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.45;
+            min-height: 100dvh;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        .title {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .title h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+            background: linear-gradient(90deg, #fff 0%, var(--accent) 60%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .title p {
+            margin: 0;
+            color: var(--muted);
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .panel {
+            background: linear-gradient(180deg, var(--card) 0%, rgba(255,255,255,0.03) 100%);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        .panel .panel-header {
+            padding: 18px 22px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(180deg, rgba(124,92,255,0.12) 0%, rgba(255,255,255,0) 100%);
+        }
+        .panel .panel-header h2 { margin: 0; font-size: 16px; letter-spacing: .3px; }
+        .inputs-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px 16px;
+            padding: 18px;
+        }
+        @media (max-width: 760px) {
+            .inputs-grid { grid-template-columns: 1fr; }
+        }
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .field label {
+            font-size: 12px;
+            color: var(--muted);
+        }
+        .field input[type="text"] {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.04);
+            color: var(--text);
+            outline: none;
+            transition: border-color .2s, background .2s, transform .05s;
+        }
+        .field input[type="text"]:focus {
+            border-color: var(--accent);
+            background: rgba(255,255,255,0.06);
+        }
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            padding: 8px 18px 18px;
+        }
+        .btn-primary {
+            appearance: none;
+            border: 0;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-600) 60%);
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(124,92,255,0.35);
+            transition: transform .06s ease, box-shadow .2s ease, filter .2s ease;
+        }
+        .btn-primary:hover { filter: brightness(1.05); box-shadow: 0 10px 26px rgba(124,92,255,0.45); }
+        .btn-primary:active { transform: translateY(1px); }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+            margin-top: 22px;
+        }
+        @media (max-width: 980px) { .results-grid { grid-template-columns: 1fr; } }
+        .result-card {
+            border-radius: var(--radius);
+            border: 1px solid rgba(255,255,255,0.08);
+            background: linear-gradient(180deg, var(--card) 0%, rgba(255,255,255,0.03) 100%);
+            padding: 18px;
+            box-shadow: var(--shadow);
+        }
+        .result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .result-title { font-weight: 700; letter-spacing: .2px; }
+        .badge { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+        .badge-ok { background: rgba(34,197,94,0.15); color: #34d399; border: 1px solid rgba(34,197,94,0.35); }
+        .badge-issue { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.35); }
+        .kv { display: grid; grid-template-columns: 120px 1fr; gap: 10px; margin-top: 8px; color: var(--muted); font-size: 14px; }
+        .kv strong { color: var(--text); font-weight: 700; }
+
+        .error {
+            margin-top: 22px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239,68,68,0.35);
+            color: #fecaca;
+            box-shadow: var(--shadow);
+        }
+        footer { margin-top: 34px; color: var(--muted); font-size: 12px; text-align: center; }
+    </style>
+    <script>
+        // Simple client-side UX: scroll to results when present
+        document.addEventListener('DOMContentLoaded', function() {
+            const anchor = document.getElementById('results-anchor');
+            if (anchor) {
+                anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    </script>
+    <noscript></noscript>
+    <meta name="color-scheme" content="dark light">
 </head>
 <body>
-    <h2>Enter 23 Input Features</h2>
-    <form action="/predict" method="post">
-        {% for i, label in [
-            (0, 'Process Mode'),
-            (1, 'Oxygen Consumption - Top'),
-            (2, 'Furnace Power'),
-            (3, 'Combustion Chamber Pressure'),
-            (4, 'Suction Damper Position feedback'),
-            (5, 'FDC Inlet Temperature'),
-            (6, 'FDC Outlet Temperature'),
-            (7, 'FDC Outlet Temperature - UpperSide'),
-            (8, 'DP across FDC'),
-            (9, 'FDC Outlet Pressure'),
-            (10, 'Pressure at Gas Mixture Inlet'),
-            (11, 'Temp at BagHouse Inlet - UpperSide'),
-            (12, 'Temp at BagHouse Inlet - LowerSide'),
-            (13, 'Pressure at BagHouse Inlet'),
-            (14, 'DP Across BagHouse - UpperSide'),
-            (15, 'DP Across BagHouse - LowerSide'),
-            (16, 'Pressure ID Fan Inlet'),
-            (17, 'Canopy Damper Position'),
-            (18, 'Unnamed: 19'),
-            (19, 'Unnamed: 20'),
-            (20, 'ID Fan1 Speed'),
-            (21, 'ID Fan1 Current'),
-            (22, 'ID Fan2 Speed')
-        ] %}
-            <label for="f{{ i }}">{{ label }}:</label><br>
-            <input type="text" name="f{{ i }}" required><br>
-        {% endfor %}
-        <br>
-        <input type="submit" value="Predict">
-    </form>
+    <div class="container">
+        <div class="header">
+            <div class="title">
+                <h1>Intelligent Fume Extraction</h1>
+                <p>Predictive analytics across 5 pressure models</p>
+            </div>
+        </div>
 
-    {% if prediction1 %}
-        <h3>Pressure At ID Fan Inlet:</h3> 
-        <h3>Predicted : {{ prediction1}}</h3> 
-        <h3>Actual : {{actual_data_1}}</h3> 
-        {%if result1 == "problem"%}
-            <h3>May have Problem At ID Fan Inlet</h3> 
+        <div class="panel">
+            <div class="panel-header">
+                <h2>Enter 23 Input Features</h2>
+                <span style="color: var(--muted); font-size: 12px;">All fields are required</span>
+            </div>
+            <form action="/predict" method="post">
+                <div class="inputs-grid">
+                    {% for i, label in [
+                        (0, 'Process Mode'),
+                        (1, 'Oxygen Consumption - Top'),
+                        (2, 'Furnace Power'),
+                        (3, 'Combustion Chamber Pressure'),
+                        (4, 'Suction Damper Position feedback'),
+                        (5, 'FDC Inlet Temperature'),
+                        (6, 'FDC Outlet Temperature'),
+                        (7, 'FDC Outlet Temperature - UpperSide'),
+                        (8, 'DP across FDC'),
+                        (9, 'FDC Outlet Pressure'),
+                        (10, 'Pressure at Gas Mixture Inlet'),
+                        (11, 'Temp at BagHouse Inlet - UpperSide'),
+                        (12, 'Temp at BagHouse Inlet - LowerSide'),
+                        (13, 'Pressure at BagHouse Inlet'),
+                        (14, 'DP Across BagHouse - UpperSide'),
+                        (15, 'DP Across BagHouse - LowerSide'),
+                        (16, 'Pressure ID Fan Inlet'),
+                        (17, 'Canopy Damper Position'),
+                        (18, 'Unnamed: 19'),
+                        (19, 'Unnamed: 20'),
+                        (20, 'ID Fan1 Speed'),
+                        (21, 'ID Fan1 Current'),
+                        (22, 'ID Fan2 Speed')
+                    ] %}
+                        <div class="field">
+                            <label for="f{{ i }}">{{ label }}</label>
+                            <input type="text" name="f{{ i }}" required placeholder="Enter {{ label | lower }}">
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="actions">
+                    <button class="btn-primary" type="submit" aria-label="Run prediction">Predict</button>
+                </div>
+            </form>
+        </div>
+
+        {% if prediction1 %}
+            <div id="results-anchor"></div>
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-header">
+                        <div class="result-title">Pressure At ID Fan Inlet</div>
+                        {% if result1 == 'problem' %}
+                            <span class="badge badge-issue">Potential Issue</span>
+                        {% else %}
+                            <span class="badge badge-ok">Normal</span>
+                        {% endif %}
+                    </div>
+                    <div class="kv"><div>Predicted</div><strong>{{ prediction1 }}</strong></div>
+                    <div class="kv"><div>Actual</div><strong>{{ actual_data_1 }}</strong></div>
+                    {% if result1 == 'problem' %}
+                        <div class="kv"><div>Status</div><strong style="color:#fca5a5;">May have Problem At ID Fan Inlet</strong></div>
+                    {% endif %}
+                </div>
+
+                <div class="result-card">
+                    <div class="result-header">
+                        <div class="result-title">Pressure At BagHouse</div>
+                        {% if result2 == 'problem' %}
+                            <span class="badge badge-issue">Potential Issue</span>
+                        {% else %}
+                            <span class="badge badge-ok">Normal</span>
+                        {% endif %}
+                    </div>
+                    <div class="kv"><div>Predicted</div><strong>{{ prediction2 }}</strong></div>
+                    <div class="kv"><div>Actual</div><strong>{{ actual_data_2 }}</strong></div>
+                    {% if result2 == 'problem' %}
+                        <div class="kv"><div>Status</div><strong style="color:#fca5a5;">May have Problem At BagHouse</strong></div>
+                    {% endif %}
+                </div>
+
+                <div class="result-card">
+                    <div class="result-header">
+                        <div class="result-title">Pressure At Gas Mixture</div>
+                        {% if result3 == 'problem' %}
+                            <span class="badge badge-issue">Potential Issue</span>
+                        {% else %}
+                            <span class="badge badge-ok">Normal</span>
+                        {% endif %}
+                    </div>
+                    <div class="kv"><div>Predicted</div><strong>{{ prediction3 }}</strong></div>
+                    <div class="kv"><div>Actual</div><strong>{{ actual_data_3 }}</strong></div>
+                    {% if result3 == 'problem' %}
+                        <div class="kv"><div>Status</div><strong style="color:#fca5a5;">May have Problem At Gas Mixture</strong></div>
+                    {% endif %}
+                </div>
+
+                <div class="result-card">
+                    <div class="result-header">
+                        <div class="result-title">Pressure At FDC Outlet</div>
+                        {% if result4 == 'problem' %}
+                            <span class="badge badge-issue">Potential Issue</span>
+                        {% else %}
+                            <span class="badge badge-ok">Normal</span>
+                        {% endif %}
+                    </div>
+                    <div class="kv"><div>Predicted</div><strong>{{ prediction4 }}</strong></div>
+                    <div class="kv"><div>Actual</div><strong>{{ actual_data_4 }}</strong></div>
+                    {% if result4 == 'problem' %}
+                        <div class="kv"><div>Status</div><strong style="color:#fca5a5;">May have Problem At FDC Outlet</strong></div>
+                    {% endif %}
+                </div>
+
+                <div class="result-card" style="grid-column: 1 / -1;">
+                    <div class="result-header">
+                        <div class="result-title">Pressure At Combustion Chamber</div>
+                        {% if result5 == 'problem' %}
+                            <span class="badge badge-issue">Potential Issue</span>
+                        {% else %}
+                            <span class="badge badge-ok">Normal</span>
+                        {% endif %}
+                    </div>
+                    <div class="kv"><div>Predicted</div><strong>{{ prediction5 }}</strong></div>
+                    <div class="kv"><div>Actual</div><strong>{{ actual_data_5 }}</strong></div>
+                    {% if result5 == 'problem' %}
+                        <div class="kv"><div>Status</div><strong style="color:#fca5a5;">May have Problem At Combustion Chamber</strong></div>
+                    {% endif %}
+                </div>
+            </div>
         {% endif %}
 
-        <br>
-
-        <h3>Pressure At BagHouse: </h3>
-        <h3>Predicted : {{ prediction2}}</h3> 
-        <h3>Actual : {{actual_data_2}}</h3>
-        {%if result2 == "problem"%}
-            <h3>May have Problem At BagHouse</h3> 
+        {% if prediction_error %}
+            <div class="error" role="alert">{{ prediction_error }}</div>
         {% endif %}
 
-        <br>
-
-        <h3>Pressure At Gas Mixture:</h3>
-        <h3>Predicted : {{ prediction3}}</h3> 
-        <h3>Actual : {{actual_data_3}}</h3>
-        {%if result3 == "problem"%}
-            <h3>May have Problem At Gas Mixture</h3> 
-        {% endif %}
-
-        <br>
-
-        <h3>Pressure At FDC Oulet:</h3>
-        <h3>Predicted : {{ prediction4}}</h3> 
-        <h3>Actual : {{actual_data_4}}</h3>
-        {%if result4 == "problem"%}
-            <h3>May have Problem At FDC Outlet</h3> 
-        {% endif %}
-
-        <br>
-
-        <h3>Pressure At Combustion Chamber:</h3>
-        <h3>Predicted : {{ prediction5}}</h3> 
-        <h3>Actual : {{actual_data_5}}</h3>
-        {%if result5 == "problem"%}
-            <h3>May have Problem At Combustion Chamber</h3> 
-        {% endif %}
-    {% endif %}
-    
-    {% if prediction_error %}
-        <h3 style="color:red;">{{ prediction_error }}</h3>
-    {% endif %}
+        <footer>
+            © {{ 2025 }} Intelligent Fume Extraction System • Predictive Monitoring UI
+        </footer>
+    </div>
 </body>
 </html>
+<!-- Original sample data retained below for reference -->
 <!-- 32	2890.05	0.0	-13.97569	92.22367	400.8029	168.8	162.6	103.3782	-122.7214	-119.8785
 79.4	74.0	-219.9002	15.85503	18.51997	-400.0651	60.93208	41.2	80.7	946.2	
 226.4158	945.4032 -->
